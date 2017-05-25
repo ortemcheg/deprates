@@ -26,7 +26,7 @@ const bankDescriptions = $table_rows.map(function() {
 
 /*
 
-structure of a bankDescription object. The object contains data about a given bank: its licence number, its name and a list of its websites
+structure of a bankDescription object. The object
 { "licence_id": 124, "name": "Kreddepbank", "sites": ["http://first.ru", "http://second.ru"] }
 
 TODO:
