@@ -2,13 +2,14 @@
 
 const request = require('request');
 const cheerio = require('cheerio');
+const iconv = require('iconv-lite');
 
 //Let's pretend we are Safari and fetch the page containing the list of banks
 request({ url: 'http://cbr.ru/credit/CO_SitesFull.asp', headers: {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A'}, encoding: null}, processResponse);
 
 function processResponse(err, resp, body){
   if (err) throw err;
-  parseHtml(body);
+  parseHtml(iconv.decode(body, 'win1251'));
 }
 
 function parseHtml(html) {
@@ -17,9 +18,9 @@ function parseHtml(html) {
   const $table_rows = $('tr', 'table').slice(1);
   //bankDescriptions is an array bankDescription objects
   //bankDescription object's structure is at the bottom
-  const bankDescriptions = $table_rows.map((i, elem) => {
+  const bankDescriptions = $table_rows.map((i, table_row) => {
     // tds[0] - licence, tds[1] - name (in A), ts[2] - URLs in hrefs of As of LIs of UL
-    const tds = $(elem).children().slice(1);
+    const tds = $(table_row).children().slice(1);
     const licence_id = $(tds[0]).text();
     const bankName = $(tds[1]).text();
     //make a list of bank's sites, ignore social sites
@@ -39,7 +40,7 @@ function parseHtml(html) {
     };
   });
   console.log('Got data about', bankDescriptions.length, 'banks.');
-  console.log('Here is bankDescription for 41-d bank', bankDescriptions[40]);
+  console.log('Here is bankDescription for 141-d bank', bankDescriptions[140]);
 }
 
 /*
