@@ -10,10 +10,10 @@ The app fetches and parses all those XML documents to find the best rates for a 
 Where does the app take the URLs for those XML docs?
 
 The Central Bank requires that XML docs are published on the root directory of every bank's official site. How do we find those sites?
-There's a [page][http://cbr.ru/credit/CO_SitesFull.asp] on the CBR's website which contains a list of banks and their corresponding web-sites.
+There's a [page](http://cbr.ru/credit/CO_SitesFull.asp) on the CBR's website which contains a list of banks and their corresponding web-sites.
 Sometimes there are more then one site for a given bank, and we don't know which of those is official. So we check each of those to find the XML-file we need.
 
-## How the app works.
+## How the app works
 It works by executing the following steps:
 1. Fetch the page with a list of banks and their sites from the CBR's website
 2. Parse that page to get the preliminary list of banks and their sites (God bless screenscraping!)
