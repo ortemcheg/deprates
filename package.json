@@ -1,0 +1,23 @@
+{
+  "name": "deprates",
+  "version": "1.0.0",
+  "description": "The app looks for the best no-BS deposit rates in Russia.",
+  "main": "parser.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ortemcheg/deprates.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ortemcheg/deprates/issues"
+  },
+  "homepage": "https://github.com/ortemcheg/deprates#readme",
+  "dependencies": {
+    "request": "^2.81.0"
+  }
+}
