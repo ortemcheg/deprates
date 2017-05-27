@@ -5,9 +5,15 @@ const cheerio = require('cheerio');
 const iconv = require('iconv-lite');
 
 //Let's pretend we are Safari and fetch the page containing the list of banks
-request({ url: 'http://cbr.ru/credit/CO_SitesFull.asp', headers: {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A'}, encoding: null}, processResponse);
+request({
+  url: 'http://cbr.ru/credit/CO_SitesFull.asp',
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A'
+  },
+  encoding: null
+}, processResponse);
 
-function processResponse(err, resp, body){
+function processResponse(err, resp, body) {
   if (err) throw err;
   parseHtml(iconv.decode(body, 'win1251'));
 }
@@ -25,7 +31,7 @@ function parseHtml(html) {
     const bankName = $(tds[1]).text();
     //make a list of bank's sites, ignore social sites
     const urlsList = $('a', tds[2]).filter((i, anchor) => {
-      const socialSites = ['ok.ru', 'vk.com', 'facebook', 'twitter', 'youtube', 'instagram'];
+      const socialSites = ['ok.ru', 'vk.com', 'facebook', 'twitter', 'youtube', 'instagram', 'linkedin'];
       return !(socialSites.some((site) => {
         if ($(anchor).attr('href').toLowerCase().indexOf(site) > -1) return true;
       }));
@@ -38,9 +44,54 @@ function parseHtml(html) {
       name: bankName,
       sites: urlsList
     };
-  });
+  }).toArray();
   console.log('Got data about', bankDescriptions.length, 'banks.');
-  console.log('Here is bankDescription for 141-d bank', bankDescriptions[140]);
+  findSitesWithXML(bankDescriptions);
+}
+
+function findSitesWithXML(bankDescriptions){
+  let report = {
+    errors: 0,
+    bad_responses: {}
+  };
+  let numberOfUrls = 0;
+  let counter = 0;
+  bankDescriptions.forEach((bankDescription) =>{
+    numberOfUrls += bankDescription.sites.length;
+    bankDescription.sites.forEach( (url) => {
+      url = url.concat('/For_CBRF/Deposits.xml');
+      request(url, (err, resp, body)=>{
+        counter++;
+        if(err){
+          report.errors++;
+        }
+        else if(resp.statusCode !== 200){
+          report.bad_responses[resp.statusCode.toString()] = report.bad_responses[resp.statusCode] ? report.bad_responses[resp.statusCode]++ : 1;
+        }
+        if(counter == numberOfUrls){
+          console.log(`we've got ${numberOfUrls} urls`);
+          console.log(report);
+        }
+        else if(counter > numberOfUrls){
+          console.log(counter);
+        }
+      });
+    }
+
+    );
+  });
+
+  // function responseHandler(err, resp, body){
+  //   if(err){
+  //     console.log(url, 'returned error:', err);
+  //   }
+  //   else if(resp.statusCode !== 200){
+  //     console.log('=>', `[${resp.statusCode}]: ${url}`);
+  //   }
+  // }
+  /*
+  [{licence_id, name, sites: {url: statusCode}}]
+  */
 }
 
 /*
