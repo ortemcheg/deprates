@@ -38,7 +38,7 @@ function parseHtml(html) {
       name: bankName,
       sites: urlsList
     };
-  });
+  }).toArray();
   console.log('Got data about', bankDescriptions.length, 'banks.');
   console.log('Here is bankDescription for 141-d bank', bankDescriptions[140]);
 }
