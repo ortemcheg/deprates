@@ -19,7 +19,7 @@
   "homepage": "https://github.com/ortemcheg/deprates#readme",
   "dependencies": {
     "cheerio": "^0.22.0",
-    "iconv-lite": "^0.4.17",
-    "request": "^2.81.0"
+    "iconv-lite": "^0.4.21",
+    "request": "^2.85.0"
   }
 }
