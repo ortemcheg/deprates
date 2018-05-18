@@ -25,7 +25,7 @@ function parseHtml(html) {
     const bankName = $(tds[1]).text();
     //make a list of bank's sites, ignore social sites
     const urlsList = $('a', tds[2]).filter((i, anchor) => {
-      const socialSites = ['ok.ru', 'vk.com', 'facebook', 'twitter', 'youtube', 'instagram'];
+      const socialSites = ['ok.ru', 'vk.com', 'facebook', 'twitter', 'youtube', 'instagram', 'linkedin'];
       return !(socialSites.some((site) => {
         if ($(anchor).attr('href').toLowerCase().indexOf(site) > -1) return true;
       }));
@@ -40,7 +40,7 @@ function parseHtml(html) {
     };
   }).toArray();
   console.log('Got data about', bankDescriptions.length, 'banks.');
-  console.log('Here is bankDescription for 141-d bank', bankDescriptions[140]);
+  console.log('Here is bankDescription for 151-th bank', bankDescriptions[150]);
 }
 
 /*
@@ -49,6 +49,6 @@ structure of a bankDescription object. The object condains data about a bank: it
 { "licence_id": 124, "name": "Kreddepbank", "sites": ["http://first.ru", "http://second.ru"] }
 
 TODO:
--> before parsing the page test if its structure is what we expect (why? if the structure changes our parsing algorithm breaks)
+-> before parsing the page test if its structure is what we expect (why? if the structure changes our parsing algorithm will break)
 
 */
