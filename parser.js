@@ -1,16 +1,22 @@
 //TODOs are at the bottom
 
-const request = require('request');
+const rp = require('request-promise');
 const cheerio = require('cheerio');
 const iconv = require('iconv-lite');
 
-//Let's pretend we are Safari and fetch the page containing the list of banks
-request({ url: 'http://cbr.ru/credit/CO_SitesFull.asp', headers: {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A'}, encoding: null}, processResponse);
+const reqOptions = {
+  url: 'http://cbr.ru/credit/CO_SitesFull.asp',
+  headers: {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A'},
+  encoding: null,
+  transform: (body) => {
+    return iconv.decode(body, 'win1251');
+  }
+};
 
-function processResponse(err, resp, body){
-  if (err) throw err;
-  parseHtml(iconv.decode(body, 'win1251'));
-}
+rp(reqOptions).then(parseHtml).then( descriptions => {
+  console.log('Got data about', descriptions.length, 'banks.');
+  console.log('Here is bankDescription for 151-th bank', descriptions[150]);
+}).catch( e => console.log(e) );
 
 function parseHtml(html) {
   const $ = cheerio.load(html);
@@ -39,8 +45,7 @@ function parseHtml(html) {
       sites: urlsList
     };
   }).toArray();
-  console.log('Got data about', bankDescriptions.length, 'banks.');
-  console.log('Here is bankDescription for 151-th bank', bankDescriptions[150]);
+  return bankDescriptions;
 }
 
 /*
