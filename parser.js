@@ -13,10 +13,14 @@ const reqOptions = {
   }
 };
 
-rp(reqOptions).then(parseHtml).then( descriptions => {
-  console.log('Got data about', descriptions.length, 'banks.');
-  console.log('Here is bankDescription for 151-th bank', descriptions[150]);
-}).catch( e => console.log(e) );
+rp(reqOptions).then(parseHtml).then(splitMultipleAndSingleSiteOwners).catch( e => console.log(e) );
+
+
+function splitMultipleAndSingleSiteOwners(descriptions){
+  const allDescriptions = new Set(descriptions);
+  const singleSiteOwners = new Set(descriptions.filter( bankDescription => {if (bankDescription.sites.length ===1) return bankDescription} ));
+  console.log([...singleSiteOwners].length, 'of', descriptions.length);
+}
 
 function parseHtml(html) {
   const $ = cheerio.load(html);
@@ -50,7 +54,7 @@ function parseHtml(html) {
 
 /*
 
-structure of a bankDescription object. The object condains data about a bank: its licence_id, its name and a list of its sites
+structure of a bankDescription object. The object contains data about a bank: its licence_id, its name and a list of its sites
 { "licence_id": 124, "name": "Kreddepbank", "sites": ["http://first.ru", "http://second.ru"] }
 
 TODO:
