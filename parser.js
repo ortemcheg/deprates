@@ -13,13 +13,45 @@ const reqOptions = {
   }
 };
 
-rp(reqOptions).then(parseHtml).then(splitMultipleAndSingleSiteOwners).catch( e => console.log(e) );
+rp(reqOptions).then(parseHtml).then(splitMultipleAndSingleSiteOwners).then(requestXMLs).then(harvestResponses).catch( e => console.log(e) );
 
+function harvestResponses( respObjects ) {
+  const responsesRecived = respObjects.length;
+  const successfullResponses = respObjects.filter( respObj => { if(respObj.result == 'OK') return true }).length;
+  console.log('Got', responsesRecived, 'responses');
+  console.log('Successful:', successfullResponses);
+  console.log('Failed:', responsesRecived - successfullResponses);
+  if(responsesRecived - successfullResponses) {
+    console.log(respObjects.filter( respObj => { if(respObj.result == 'Failed') return true }).map( respObj => respObj.name).join(', '));
+  }
+}
+
+function requestXMLs(bankDescriptions) {
+
+  return Promise.all( bankDescriptions.map( bankDescription => {
+    // A blueprint of an object that will be returned
+    //by either resolve or reject callbac for each response
+    const objForResolvedPromise = {
+      licence_id: bankDescription.licence_id,
+      name: bankDescription.name
+    };
+    //make sure the URL is valid
+    let xmlURL = bankDescription['sites'][0]+'/For_CBRF/Deposits.xml';
+    //console.log('Fetching', xmlURL );
+    return rp( xmlURL ).then( res => {
+        objForResolvedPromise.result = 'OK';
+        return objForResolvedPromise },
+        rej => {
+          objForResolvedPromise.result = 'Failed';
+          return objForResolvedPromise } );
+
+  } ));
+}
 
 function splitMultipleAndSingleSiteOwners(descriptions){
-  const allDescriptions = new Set(descriptions);
-  const singleSiteOwners = new Set(descriptions.filter( bankDescription => {if (bankDescription.sites.length ===1) return bankDescription} ));
-  console.log([...singleSiteOwners].length, 'of', descriptions.length);
+  const singleSiteOwners = descriptions.filter( bankDescription => {if (bankDescription.sites.length ===1) return bankDescription} );
+  //For now we'll only fetch XMLs for banks which have only one site.
+  return singleSiteOwners;
 }
 
 function parseHtml(html) {
