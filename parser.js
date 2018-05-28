@@ -13,6 +13,7 @@ const reqOptions = {
   }
 };
 
+//The main action
 rp(reqOptions).then(parseHtml).then(splitMultipleAndSingleSiteOwners).then(requestXMLs).then(harvestResponses).catch( e => console.log(e) );
 
 function harvestResponses( respObjects ) {
@@ -29,7 +30,7 @@ function harvestResponses( respObjects ) {
 function requestXMLs(bankDescriptions) {
 
   return Promise.all( bankDescriptions.map( bankDescription => {
-    // A blueprint of an object that will be returned
+    // A blueprint for an object that will be returned
     //by either resolve or reject callbac for each response
     const objForResolvedPromise = {
       licence_id: bankDescription.licence_id,
