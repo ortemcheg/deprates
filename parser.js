@@ -2,15 +2,10 @@
 
 const rp = require('request-promise');
 const cheerio = require('cheerio');
-const iconv = require('iconv-lite');
 
 const reqOptions = {
   url: 'http://cbr.ru/credit/CO_SitesFull.asp',
   headers: {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A'},
-  encoding: null,
-  transform: (body) => {
-    return iconv.decode(body, 'win1251');
-  }
 };
 
 //The main action
