@@ -1,5 +1,5 @@
 //TODOs are at the bottom
-
+//make the logs colorful
 const rp = require('request-promise');
 const cheerio = require('cheerio');
 
@@ -8,12 +8,22 @@ const reqOptions = {
   headers: {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A'},
 };
 
+async function getXMLdataFromBanks(){
+  const htmlFromCbr = await rp(reqOptions);
+  const banksDescriptionObjects = parseHtml(htmlFromCbr);
+  const singleSiteOwners =  splitMultipleAndSingleSiteOwners(banksDescriptionObjects);
+  const XMLdataFromBanks = await requestXMLs(singleSiteOwners);
+  return XMLdataFromBanks; 
+}
+
+getXMLdataFromBanks().then( harvestResponses );
 //The main action
-rp(reqOptions).then(parseHtml).then(splitMultipleAndSingleSiteOwners).then(requestXMLs).then(harvestResponses).catch( e => console.log(e) );
+//rp(reqOptions).then(parseHtml).then(splitMultipleAndSingleSiteOwners).then(requestXMLs).then(harvestResponses).catch( e => console.log(e) );
 
 function harvestResponses( respObjects ) {
   const responsesRecived = respObjects.length;
   const successfullResponses = respObjects.filter( respObj => { if(respObj.result == 'OK') return true }).length;
+  console.log("=================");
   console.log('Got', responsesRecived, 'responses');
   console.log('Successful:', successfullResponses);
   console.log('Failed:', responsesRecived - successfullResponses);
@@ -26,14 +36,14 @@ function requestXMLs(bankDescriptions) {
 
   return Promise.all( bankDescriptions.map( bankDescription => {
     // A blueprint for an object that will be returned
-    //by either resolve or reject callbac for each response
+    //by either resolve or reject callback for each response
     const objForResolvedPromise = {
       licence_id: bankDescription.licence_id,
       name: bankDescription.name
     };
     //make sure the URL is valid
     let xmlURL = bankDescription['sites'][0]+'/For_CBRF/Deposits.xml';
-    //console.log('Fetching', xmlURL );
+    console.log('Fetching data for', bankDescription.name);
     return rp( xmlURL ).then( res => {
         objForResolvedPromise.result = 'OK';
         return objForResolvedPromise },
